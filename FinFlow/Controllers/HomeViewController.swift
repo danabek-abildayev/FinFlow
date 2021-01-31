@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import LocalAuthentication
 
 class HomeViewController: UIViewController {
     
@@ -15,7 +16,7 @@ class HomeViewController: UIViewController {
     let appName = UILabel()
     let appText = UILabel()
     let start = UIButton()
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
@@ -33,7 +34,7 @@ class HomeViewController: UIViewController {
     
     func setItems() {
         backgroundView.frame = view.frame
-        backgroundView.image = UIImage(named: "coin-1481018_1920")
+        backgroundView.image = UIImage(named: "coin")
         backgroundView.contentMode = .scaleAspectFill
         view.addSubview(backgroundView)
         
@@ -54,7 +55,7 @@ class HomeViewController: UIViewController {
         start.titleLabel?.font = .systemFont(ofSize: 25)
         start.backgroundColor = UIColor(red: 0.52, green: 0.25, blue: 0.14, alpha: 1.00)
         start.layer.cornerRadius = 15
-        start.addTarget(self, action: #selector(getStarted), for: .touchUpInside)
+        start.addTarget(self, action: #selector(touchID), for: .touchUpInside)
         start.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(start)
         
@@ -72,49 +73,69 @@ class HomeViewController: UIViewController {
         ])
     }
     
-    @objc func getStarted() {
+    @objc func touchID() {
         
-        var password = UITextField()
+        let context : LAContext = LAContext()
         
-        let alert = UIAlertController(title: "Enter password", message: "", preferredStyle: .alert)
-        alert.addTextField { (alertTextField) in
-            alertTextField.keyboardType = .numberPad
-            alertTextField.textAlignment = .center
-            alertTextField.isSecureTextEntry = true
-            password = alertTextField
-        }
-        
-        password.text = "1111"
-        
-        let action = UIAlertAction(title: "Proceed", style: .default) { (action) in
-            if password.text! == "1111" {
-                let destVC = SecondViewController()
-                destVC.modalPresentationStyle = .fullScreen
-                self.navigationController?.pushViewController(destVC, animated: true)
-            } else {
-                self.tryAgain()
+        if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: nil) {
+            context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: "Touch ID") { (success, error) in
+                if success {
+                    DispatchQueue.main.async {
+                        let destVC = SecondViewController()
+                        destVC.modalPresentationStyle = .fullScreen
+                        self.navigationController?.pushViewController(destVC, animated: true)
+                        print("It worked")
+                    }
+                } else {
+                    print("Error occured. \(error?.localizedDescription ?? "Try again")")
+                }
             }
         }
         
-        let action2 = UIAlertAction(title: "Cancel", style: .default) { (action) in
-            return
-        }
-        
-        alert.addAction(action)
-        alert.addAction(action2)
-        present(alert, animated: true)
     }
     
-    func tryAgain() {
-        let alert = UIAlertController(title: "Wrong password!", message: "", preferredStyle: .alert)
-        
-        let action = UIAlertAction(title: "Try again", style: .default) { (action) in
-            self.getStarted()
-        }
-        alert.addAction(action)
-        present(alert, animated: true)
-    }
-
-
+    //    @objc func getStarted() {
+    //
+    //        var password = UITextField()
+    //
+    //        let alert = UIAlertController(title: "Enter password", message: "", preferredStyle: .alert)
+    //        alert.addTextField { (alertTextField) in
+    //            alertTextField.keyboardType = .numberPad
+    //            alertTextField.textAlignment = .center
+    //            alertTextField.isSecureTextEntry = true
+    //            password = alertTextField
+    //        }
+    //
+    //        password.text = "1111"
+    //
+    //        let action = UIAlertAction(title: "Proceed", style: .default) { (action) in
+    //            if password.text! == "1111" {
+    //                let destVC = SecondViewController()
+    //                destVC.modalPresentationStyle = .fullScreen
+    //                self.navigationController?.pushViewController(destVC, animated: true)
+    //            } else {
+    //                self.tryAgain()
+    //            }
+    //        }
+    //
+    //        let action2 = UIAlertAction(title: "Cancel", style: .default) { (action) in
+    //            return
+    //        }
+    //
+    //        alert.addAction(action)
+    //        alert.addAction(action2)
+    //        present(alert, animated: true)
+    //    }
+    //
+    //    func tryAgain() {
+    //        let alert = UIAlertController(title: "Wrong password!", message: "", preferredStyle: .alert)
+    //
+    //        let action = UIAlertAction(title: "Try again", style: .default) { (action) in
+    //            self.getStarted()
+    //        }
+    //        alert.addAction(action)
+    //        present(alert, animated: true)
+    //    }
+    
 }
 

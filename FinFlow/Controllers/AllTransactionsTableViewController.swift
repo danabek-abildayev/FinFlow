@@ -16,15 +16,51 @@ class AllTransactionsTableViewController: UITableViewController {
     var allTransactionsArray : Results<ExpenseData>!
     
     private var sections = [MonthSection]()
+    
+    var exportArray : [String] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
         tableView.register(TransactionTableViewCell.self, forCellReuseIdentifier: "NewCell")
         
+        navigationItem.setRightBarButton(.init(barButtonSystemItem: .action, target: self, action: #selector(exportData)), animated: true)
+        
         loadAllTransactions()
         sections = MonthSection.groupItems(transactions: allTransactionsArray)
         tableView.reloadData()
+    }
+    
+    @objc func exportData() {
+        
+        for section in sections {
+            for transaction in section.transactions {
+                
+                let df = DateFormatter()
+                df.dateFormat = "dd MMM yyyy HH:mm:ss"
+                let dateString = df.string(from: transaction.date)
+                
+                exportArray.append("Date: \(dateString)   Description: \(transaction.tranDescription)    Amount: \(transaction.tranAmount)")
+            }
+        }
+                
+        let arrayCombinedToString = exportArray.joined(separator: "\n")
+                
+        let activityVC = UIActivityViewController(activityItems: [arrayCombinedToString], applicationActivities: .none)
+        
+        activityVC.completionWithItemsHandler = { (nil, completed, _, error)
+            in
+            if completed {
+                print("Transaction was completed successfully")
+            } else {
+                print("Cancelled or error appeared")
+            }
+        }
+        
+        present(activityVC, animated: true) {
+            print("Presented successfully")
+        }
+        
     }
     
     func loadAllTransactions() {
@@ -45,7 +81,6 @@ class AllTransactionsTableViewController: UITableViewController {
         let df = DateFormatter()
         df.dateFormat = "MMMM yyyy"
         return df.string(from: date)
-        
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -75,7 +110,7 @@ class AllTransactionsTableViewController: UITableViewController {
         cell.number.text = transaction.tranAmount
         
         cell.selectionStyle = .none
-
+        
         return cell
     }
     
@@ -87,13 +122,12 @@ class AllTransactionsTableViewController: UITableViewController {
         
         if editingStyle == .delete {
             
-            var section = sections[indexPath.section]
+            let section = sections[indexPath.section]
             let transaction = section.transactions[indexPath.row]
             
             let objectThatIsGoingToBeDeleted : ExpenseData = transaction
             
             print("Object to be deleted: \(objectThatIsGoingToBeDeleted)")
-            
 
             do {
                 try realm.write {

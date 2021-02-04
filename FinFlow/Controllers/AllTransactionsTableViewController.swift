@@ -18,7 +18,10 @@ class AllTransactionsTableViewController: UITableViewController {
     private var sections = [MonthSection]()
     
     var exportArray : [String] = []
-
+    
+    var password = UITextField()
+//    var passIsVerified = false
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -43,9 +46,9 @@ class AllTransactionsTableViewController: UITableViewController {
                 exportArray.append("Date: \(dateString)   Description: \(transaction.tranDescription)    Amount: \(transaction.tranAmount)")
             }
         }
-                
+        
         let arrayCombinedToString = exportArray.joined(separator: "\n")
-                
+        
         let activityVC = UIActivityViewController(activityItems: [arrayCombinedToString], applicationActivities: .none)
         
         activityVC.completionWithItemsHandler = { (nil, completed, _, error)
@@ -67,7 +70,7 @@ class AllTransactionsTableViewController: UITableViewController {
         allTransactionsArray = realm.objects(ExpenseData.self).sorted(byKeyPath: "date", ascending: false)
     }
     
-
+    
     // MARK: - Table view data source
     
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -82,13 +85,13 @@ class AllTransactionsTableViewController: UITableViewController {
         df.dateFormat = "MMMM yyyy"
         return df.string(from: date)
     }
-
+    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
         let section = sections[section]
         return section.transactions.count
     }
-
+    
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
@@ -96,7 +99,7 @@ class AllTransactionsTableViewController: UITableViewController {
         
         let section = sections[indexPath.section]
         let transaction = section.transactions[indexPath.row]
-
+        
         cell.imageLogo.image = UIImage(named: transaction.category.lowercased())
         
         cell.expense.text = transaction.tranDescription
@@ -118,38 +121,96 @@ class AllTransactionsTableViewController: UITableViewController {
         return 60
     }
     
+    //MARK: - Verifying password and deleting transactions
+    
+//    private func verifyPassword() {
+//
+//        let alert = UIAlertController(title: "Enter password", message: "", preferredStyle: .alert)
+//        alert.addTextField { (alertTextField) in
+//            alertTextField.keyboardType = .numberPad
+//            alertTextField.textAlignment = .center
+//            alertTextField.isSecureTextEntry = true
+//            self.password = alertTextField
+//        }
+//
+//        let action = UIAlertAction(title: "Proceed", style: .destructive) {action in
+//            if let pass = self.password.text, pass == "1111" {
+//                self.passIsVerified = true
+//            } else {
+//                self.passIsVerified = false
+//            }
+//        }
+//
+//        let action2 = UIAlertAction(title: "Cancel", style: .default)
+//
+//        alert.addAction(action)
+//        alert.addAction(action2)
+//        present(alert, animated: true)
+//    }
+    
+    private func tryAgain() {
+        let alert = UIAlertController(title: "Wrong password!", message: "", preferredStyle: .alert)
+        
+        let action = UIAlertAction(title: "Ok", style: .default)
+        alert.addAction(action)
+        present(alert, animated: true)
+    }
+    
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         
         if editingStyle == .delete {
             
-            let section = sections[indexPath.section]
-            let transaction = section.transactions[indexPath.row]
+            let alert = UIAlertController(title: "Enter password", message: "", preferredStyle: .alert)
+            alert.addTextField { (alertTextField) in
+                alertTextField.keyboardType = .numberPad
+                alertTextField.textAlignment = .center
+                alertTextField.isSecureTextEntry = true
+                self.password = alertTextField
+            }
             
-            let objectThatIsGoingToBeDeleted : ExpenseData = transaction
-            
-            print("Object to be deleted: \(objectThatIsGoingToBeDeleted)")
-
-            do {
-                try realm.write {
-                    realm.delete(objectThatIsGoingToBeDeleted)
-                    print("Deleted successfully!")
+            let action = UIAlertAction(title: "Proceed", style: .destructive) {action in
+                if let pass = self.password.text, pass == "1111" {
+                    print("Now I'll delete")
+                    
+                    let section = self.sections[indexPath.section]
+                    let transaction = section.transactions[indexPath.row]
+                    
+                    let objectThatIsGoingToBeDeleted : ExpenseData = transaction
+                    
+                    print("Object to be deleted: \(objectThatIsGoingToBeDeleted)")
+                    
+                    do {
+                        try self.realm.write {
+                            self.realm.delete(objectThatIsGoingToBeDeleted)
+                            print("Deleted successfully!")
+                        }
+                    } catch {
+                        print("Error while deleting object from table view \(error)")
+                    }
+                    
+                    self.loadAllTransactions()
+                    self.sections = MonthSection.groupItems(transactions: self.allTransactionsArray)
+                    
+                    if tableView.numberOfRows(inSection: indexPath.section) > 1 {
+                        tableView.deleteRows(at: [indexPath], with: .fade)
+                    } else {
+                        let indexSet = NSMutableIndexSet()
+                        indexSet.add(indexPath.section) // This line was wrong in above code.
+                        tableView.deleteSections(indexSet as IndexSet, with: .fade)
+                    }
+                    
+                } else {
+                    print("I'm not deleting")
+                    self.tryAgain()
                 }
-            } catch {
-                print("Error while deleting object from table view \(error)")
             }
             
-            loadAllTransactions()
-            sections = MonthSection.groupItems(transactions: allTransactionsArray)
+            let action2 = UIAlertAction(title: "Cancel", style: .default)
             
-            if tableView.numberOfRows(inSection: indexPath.section) > 1 {
-                tableView.deleteRows(at: [indexPath], with: .fade)
-            } else {
-                let indexSet = NSMutableIndexSet()
-                indexSet.add(indexPath.section) // This line was wrong in above code.
-                tableView.deleteSections(indexSet as IndexSet, with: .fade)
-            }
+            alert.addAction(action)
+            alert.addAction(action2)
+            present(alert, animated: true)
             
         }
     }
-
 }

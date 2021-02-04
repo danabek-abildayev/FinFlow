@@ -94,48 +94,5 @@ class HomeViewController: UIViewController {
         
     }
     
-    //    @objc func getStarted() {
-    //
-    //        var password = UITextField()
-    //
-    //        let alert = UIAlertController(title: "Enter password", message: "", preferredStyle: .alert)
-    //        alert.addTextField { (alertTextField) in
-    //            alertTextField.keyboardType = .numberPad
-    //            alertTextField.textAlignment = .center
-    //            alertTextField.isSecureTextEntry = true
-    //            password = alertTextField
-    //        }
-    //
-    //        password.text = "1111"
-    //
-    //        let action = UIAlertAction(title: "Proceed", style: .default) { (action) in
-    //            if password.text! == "1111" {
-    //                let destVC = SecondViewController()
-    //                destVC.modalPresentationStyle = .fullScreen
-    //                self.navigationController?.pushViewController(destVC, animated: true)
-    //            } else {
-    //                self.tryAgain()
-    //            }
-    //        }
-    //
-    //        let action2 = UIAlertAction(title: "Cancel", style: .default) { (action) in
-    //            return
-    //        }
-    //
-    //        alert.addAction(action)
-    //        alert.addAction(action2)
-    //        present(alert, animated: true)
-    //    }
-    //
-    //    func tryAgain() {
-    //        let alert = UIAlertController(title: "Wrong password!", message: "", preferredStyle: .alert)
-    //
-    //        let action = UIAlertAction(title: "Try again", style: .default) { (action) in
-    //            self.getStarted()
-    //        }
-    //        alert.addAction(action)
-    //        present(alert, animated: true)
-    //    }
-    
 }
 

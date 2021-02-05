@@ -20,7 +20,6 @@ class AllTransactionsTableViewController: UITableViewController {
     var exportArray : [String] = []
     
     var password = UITextField()
-//    var passIsVerified = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -123,31 +122,6 @@ class AllTransactionsTableViewController: UITableViewController {
     
     //MARK: - Verifying password and deleting transactions
     
-//    private func verifyPassword() {
-//
-//        let alert = UIAlertController(title: "Enter password", message: "", preferredStyle: .alert)
-//        alert.addTextField { (alertTextField) in
-//            alertTextField.keyboardType = .numberPad
-//            alertTextField.textAlignment = .center
-//            alertTextField.isSecureTextEntry = true
-//            self.password = alertTextField
-//        }
-//
-//        let action = UIAlertAction(title: "Proceed", style: .destructive) {action in
-//            if let pass = self.password.text, pass == "1111" {
-//                self.passIsVerified = true
-//            } else {
-//                self.passIsVerified = false
-//            }
-//        }
-//
-//        let action2 = UIAlertAction(title: "Cancel", style: .default)
-//
-//        alert.addAction(action)
-//        alert.addAction(action2)
-//        present(alert, animated: true)
-//    }
-    
     private func tryAgain() {
         let alert = UIAlertController(title: "Wrong password!", message: "", preferredStyle: .alert)
         
@@ -161,14 +135,16 @@ class AllTransactionsTableViewController: UITableViewController {
         if editingStyle == .delete {
             
             let alert = UIAlertController(title: "Enter password", message: "", preferredStyle: .alert)
-            alert.addTextField { (alertTextField) in
+            alert.addTextField { [weak self] (alertTextField) in
+                guard let self = self else {return}
                 alertTextField.keyboardType = .numberPad
                 alertTextField.textAlignment = .center
                 alertTextField.isSecureTextEntry = true
                 self.password = alertTextField
             }
             
-            let action = UIAlertAction(title: "Proceed", style: .destructive) {action in
+            let action = UIAlertAction(title: "Proceed", style: .destructive) {[weak self] action in
+                guard let self = self else {return}
                 if let pass = self.password.text, pass == "1111" {
                     print("Now I'll delete")
                     

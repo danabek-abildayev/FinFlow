@@ -219,6 +219,17 @@ extension SecondViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         
+        if sections.count == 0 {
+            let headerView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: 40))
+            headerView.backgroundColor = .gray
+            
+            // code for adding centered title
+            let headerTitle = UILabel(frame: CGRect(x: 10, y: 0, width: 200, height: 28))
+            headerTitle.textColor = UIColor.black
+            
+            return headerView
+        }
+        
         let headerView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: 40))
         headerView.backgroundColor = .gray
         
@@ -246,11 +257,27 @@ extension SecondViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        
+        if sections.count == 0 {
+            return 1
+        }
+        
         let section = sections[section]
         return section.transactions.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        if sections.count == 0 {
+            
+            tableView.register(UITableViewCell.self, forCellReuseIdentifier: "EmptyCell")
+            
+            let cell = tableView.dequeueReusableCell(withIdentifier: "EmptyCell", for: indexPath)
+            
+            cell.textLabel?.text = "Enter some value"
+            
+            return cell
+        }
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! TransactionTableViewCell
         
